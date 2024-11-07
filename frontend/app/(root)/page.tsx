@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Sidebar from "../components/Sidebar";
 
 export default function Home() {
   return (
@@ -28,6 +29,7 @@ export default function Home() {
             <button className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-600 transition">
               Register as Student
             </button>
+
           </Link>
         </div>
       </div>

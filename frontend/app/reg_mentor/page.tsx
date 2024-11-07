@@ -1,5 +1,3 @@
-// app/reg_mentor/page.tsx
-
 "use client";
 
 import React, { useState } from 'react';
@@ -47,7 +45,7 @@ const MentorForm: React.FC = () => {
                             value={formData.name}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
@@ -60,7 +58,7 @@ const MentorForm: React.FC = () => {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
@@ -73,7 +71,7 @@ const MentorForm: React.FC = () => {
                             value={formData.phoneNumber}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 text-black"
                         />
                     </div>
 
@@ -86,13 +84,13 @@ const MentorForm: React.FC = () => {
                             value={formData.domain}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full py-2 px-4 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600bg-gray-600 focus:ring-offset-2"
+                        className="w-full py-2 px-4 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2"
                     >
                         Submit
                     </button>
