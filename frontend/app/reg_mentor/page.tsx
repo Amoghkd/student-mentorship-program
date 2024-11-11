@@ -1,38 +1,119 @@
 "use client";
 
 import React, { useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface MentorFormData {
     name: string;
-    email: string;
-    phoneNumber: string;
-    domain: string;
+    contact_info: {
+        email: string;
+        phone: string;
+    };
+    expertise: string[];
+    availability: string;
+    languages: string;
+    bio: string;
 }
 
 const MentorForm: React.FC = () => {
     const [formData, setFormData] = useState<MentorFormData>({
         name: '',
-        email: '',
-        phoneNumber: '',
-        domain: '',
+        contact_info: {
+            email: '',
+            phone: '',
+        },
+        expertise: [],
+        availability: '',
+        languages: '',
+        bio: '',
     });
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        
+        // Nested fields handling for contact_info
+        if (name === 'email' || name === 'phone') {
+            setFormData({
+                ...formData,
+                contact_info: {
+                    ...formData.contact_info,
+                    [name]: value,
+                },
+            });
+        } else if (name === 'expertise') {
+            setFormData({
+                ...formData,
+                expertise: value.split(',').map(skill => skill.trim()), // Convert comma-separated string to array
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value,
+            });
+        }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form Data:', formData);
-        // Here, you can add logic to send the form data to an API or backend server
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post('http://localhost:4000/api/mentors', formData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('Response:', response.data);
+            toast.success('Mentor Registered Successfully');
+            setFormData({
+                name: '',
+                contact_info: {
+                    email: '',
+                    phone: '',
+                },
+                expertise: [],
+                availability: '',
+                languages: '',
+                bio: '',
+            });
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    console.error('Server Error:', error.response.data);
+                    toast.error(`Error: ${error.response.data.message || 'Server error'}`);
+                } else if (error.request) {
+                    console.error('Network Error - No response received');
+                    toast.error('Cannot connect to server. Please check if the server is running.');
+                } else {
+                    console.error('Error:', error.message);
+                    toast.error(error.message);
+                }
+            } else {
+                console.error('Unexpected error:', error);
+                toast.error('An unexpected error occurred');
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-200">
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
+
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md ml-6">
                 <h2 className="text-2xl text-black font-semibold text-center mb-6">Mentor Registration Form</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +136,7 @@ const MentorForm: React.FC = () => {
                             type="email"
                             id="email"
                             name="email"
-                            value={formData.email}
+                            value={formData.contact_info.email}
                             onChange={handleChange}
                             required
                             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
@@ -63,12 +144,12 @@ const MentorForm: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone:</label>
                         <input
                             type="tel"
-                            id="phoneNumber"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
+                            id="phone"
+                            name="phone"
+                            value={formData.contact_info.phone}
                             onChange={handleChange}
                             required
                             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 text-black"
@@ -76,23 +157,62 @@ const MentorForm: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="domain" className="block text-sm font-medium text-gray-700">Domain:</label>
+                        <label htmlFor="expertise" className="block text-sm font-medium text-gray-700">Expertise (comma-separated):</label>
                         <input
                             type="text"
-                            id="domain"
-                            name="domain"
-                            value={formData.domain}
+                            id="expertise"
+                            name="expertise"
+                            value={formData.expertise.join(', ')}
                             onChange={handleChange}
                             required
                             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
+                    <div>
+                        <label htmlFor="availability" className="block text-sm font-medium text-gray-700">Availability:</label>
+                        <input
+                            type="text"
+                            id="availability"
+                            name="availability"
+                            value={formData.availability}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="languages" className="block text-sm font-medium text-gray-700">Languages:</label>
+                        <input
+                            type="text"
+                            id="languages"
+                            name="languages"
+                            value={formData.languages}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio:</label>
+                        <textarea
+                            id="bio"
+                            name="bio"
+                            value={formData.bio}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        ></textarea>
+                    </div>
+
                     <button
                         type="submit"
-                        className="w-full py-2 px-4 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2"
+                        className={`w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={isLoading}
                     >
-                        Submit
+                        {isLoading ? 'Submitting...' : 'Submit'}
                     </button>
                 </form>
             </div>
