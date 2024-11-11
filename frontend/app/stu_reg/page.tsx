@@ -1,5 +1,3 @@
-// app/reg_student/page.tsx
-
 "use client";
 
 import React, { useState } from 'react';
@@ -7,17 +5,25 @@ import React, { useState } from 'react';
 interface StudentFormData {
     name: string;
     email: string;
+    phoneNumber: string;
     interests: string;
+    needsGoals: string;
+    preferredCommunication: string;
+    location: string;
 }
 
 const StudentForm: React.FC = () => {
     const [formData, setFormData] = useState<StudentFormData>({
         name: '',
         email: '',
+        phoneNumber: '',
         interests: '',
+        needsGoals: '',
+        preferredCommunication: '',
+        location: '',
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
@@ -25,10 +31,42 @@ const StudentForm: React.FC = () => {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form Data:', formData);
-        // Here, you can add logic to send the form data to an API or backend server
+
+        // Construct the payload in the required format
+        const payload = {
+            name: formData.name,
+            contact_info: {
+                email: formData.email,
+                phone: formData.phoneNumber,
+            },
+            interests: formData.interests.split(',').map(interest => interest.trim()), // Split and trim interests
+            needs_goals: formData.needsGoals,
+            preferred_communication: formData.preferredCommunication,
+            location: formData.location,
+        };
+
+        console.log('Form Data:', payload);
+
+        // Example: POST request to your backend API
+        try {
+            const response = await fetch('/api/register-student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                console.log('Student registration successful');
+            } else {
+                console.error('Error in student registration');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
@@ -45,7 +83,7 @@ const StudentForm: React.FC = () => {
                             value={formData.name}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
@@ -58,12 +96,25 @@ const StudentForm: React.FC = () => {
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="interests" className="block text-sm font-medium text-gray-700">Interests:</label>
+                        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">Phone Number:</label>
+                        <input
+                            type="tel"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="interests" className="block text-sm font-medium text-gray-700">Interests (comma-separated):</label>
                         <input
                             type="text"
                             id="interests"
@@ -71,13 +122,51 @@ const StudentForm: React.FC = () => {
                             value={formData.interests}
                             onChange={handleChange}
                             required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="needsGoals" className="block text-sm font-medium text-gray-700">Needs/Goals:</label>
+                        <textarea
+                            id="needsGoals"
+                            name="needsGoals"
+                            value={formData.needsGoals}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="preferredCommunication" className="block text-sm font-medium text-gray-700">Preferred Communication:</label>
+                        <input
+                            type="text"
+                            id="preferredCommunication"
+                            name="preferredCommunication"
+                            value={formData.preferredCommunication}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location:</label>
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            value={formData.location}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full py-2 px-4 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600bg-gray-600 focus:ring-offset-2"
+                        className="w-full py-2 px-4 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2"
                     >
                         Submit
                     </button>
