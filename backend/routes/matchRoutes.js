@@ -1,7 +1,12 @@
 const express = require('express');
-const { getMatches } = require('../controllers/matchController');
 const router = express.Router();
+const matchController = require('../controllers/matchController');
 
-router.get('/', getMatches);
+// Route to suggest top mentors for a given mentee ID
+router.get('/suggest/:id', matchController.suggestTopMentors);
+
+// Route to save a selected match
+router.post('/save', matchController.saveSelectedMatch);
 
 module.exports = router;
+return router 

@@ -1,15 +1,31 @@
-const pool = require('../config/db');
+const MatchCrud = require('../crud/matchCrud');
+const matchingService = require('../utils/matchingService');
 
 const Match = {
-    save: async (mentorId, menteeId, score) => {
-        const sql = 'INSERT INTO mentor_mentee_matches (mentor_id, mentee_id, score, match_date) VALUES (?, ?, ?, NOW())';
-        await pool.query(sql, [mentorId, menteeId, score]);
-    },
-    findMatchesByMentee: async (menteeId) => {
-        const sql = 'SELECT * FROM mentor_mentee_matches WHERE mentee_id = ?';
-        const [rows] = await pool.query(sql, [menteeId]);
-        return rows;
+  async suggestTopMentors(menteeId) {
+    const mentee = await MatchCrud.getMenteeById(menteeId);
+    if (!mentee) {
+      throw new Error('Mentee not found');
     }
+
+    const mentors = await MatchCrud.getAllMentors();
+    if (mentors.length === 0) {
+      throw new Error('No mentors available');
+    }
+
+    return matchingService.findTopMatches(mentors, mentee, 3);
+  },
+
+  /**
+   * Save a selected match between a mentor and a mentee.
+   * @param {Number} menteeId - The ID of the mentee.
+   * @param {Number} mentorId - The ID of the mentor.
+   * @param {Number} score - The match score.
+   * @returns {Object} - Result of the save operation.
+   */
+  async saveSelectedMatch(menteeId, mentorId, score) {
+    return await MatchCrud.saveMatch(menteeId, mentorId, score);
+  }
 };
 
 module.exports = Match;

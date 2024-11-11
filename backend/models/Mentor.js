@@ -1,43 +1,26 @@
-const pool = require('../config/db');
+const MentorCrud = require('../crud/mentorCrud');
 
 const Mentor = {
-    create: async (data) => {
-        // Convert JSON fields to strings
-        const formattedData = {
-            ...data,
-            contact_info: JSON.stringify(data.contact_info),
-            expertise: JSON.stringify(data.expertise)
-        };
+  // Call CRUD methods from MentorCrud
+  getAll: async () => {
+    return await MentorCrud.getAll();
+  },
 
-        const sql = 'INSERT INTO mentors SET ?';
-        const [result] = await pool.query(sql, formattedData);
-        return result.insertId;
-    },
-    findById: async (id) => {
-        const sql = 'SELECT * FROM mentors WHERE mentor_id = ?';
-        const [rows] = await pool.query(sql, [id]);
-        return rows[0];
-    },
-    findAll: async () => {
-        const sql = 'SELECT * FROM mentors';
-        const [rows] = await pool.query(sql);
-        return rows;
-    },
-    update: async (id, data) => {
-        const formattedData = {
-            ...data,
-            contact_info: JSON.stringify(data.contact_info),
-            expertise: JSON.stringify(data.expertise)
-        };
-        const sql = 'UPDATE mentors SET ? WHERE mentor_id = ?';
-        const [result] = await pool.query(sql, [formattedData, id]);
-        return result.affectedRows;
-    },
-    delete: async (id) => {
-        const sql = 'DELETE FROM mentors WHERE mentor_id = ?';
-        const [result] = await pool.query(sql, [id]);
-        return result.affectedRows;
-    }
+  create: async (data) => {
+    return await MentorCrud.create(data);
+  },
+
+  findById: async (id) => {
+    return await MentorCrud.findById(id);
+  },
+
+  update: async (id, data) => {
+    return await MentorCrud.update(id, data);
+  },
+
+  delete: async (id) => {
+    return await MentorCrud.delete(id);
+  }
 };
 
 module.exports = Mentor;

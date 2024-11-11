@@ -1,46 +1,57 @@
 const Mentee = require('../models/Mentee');
 
-exports.createMentee = async (req, res) => {
-    const { name, contact_info, interests, needs_goals, preferred_communication, location } = req.body;
-
-    // Check for required fields
-    if (!name || !contact_info || !interests) {
-        return res.status(400).json({
-            error: 'Missing required fields: name, contact_info, and interests are required.'
-        });
-    }
-
+module.exports = {
+  async getAll(req, res) {
     try {
-        // Create mentee with provided data
-        const menteeId = await Mentee.create({
-            name,
-            contact_info: JSON.stringify(contact_info),
-            interests: JSON.stringify(interests),
-            needs_goals,
-            preferred_communication,
-            location
-        });
-        
-        res.status(201).json({ 
-            message: 'Mentee created successfully', 
-            menteeId 
-        });
+      const mentees = await Mentee.getAll();
+      res.json(mentees);
     } catch (error) {
-        console.error('Error creating mentee:', error);
-        res.status(500).json({ 
-            error: 'Failed to create mentee. Please try again.' 
-        });
+      res.status(500).json({ error: error.message });
     }
-};
+  },
 
-exports.getAllMentees = async (req, res) => {
+  async create(req, res) {
     try {
-        const mentees = await Mentee.findAll();
-        res.status(200).json(mentees);
+      const menteeId = await Mentee.create(req.body);
+      res.json({ mentee_id: menteeId });
     } catch (error) {
-        console.error('Error retrieving mentees:', error);
-        res.status(500).json({ 
-            error: 'Failed to retrieve mentees. Please try again.' 
-        });
+      res.status(500).json({ error: error.message });
     }
+  },
+
+  async findById(req, res) {
+    try {
+      const mentee = await Mentee.findById(req.params.id);
+      if (!mentee) {
+        return res.status(404).json({ error: 'Mentee not found' });
+      }
+      res.json(mentee);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async update(req, res) {
+    try {
+      const updatedRows = await Mentee.update(req.params.id, req.body);
+      if (updatedRows === 0) {
+        return res.status(404).json({ error: 'Mentee not found' });
+      }
+      res.json({ message: 'Mentee updated' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async delete(req, res) {
+    try {
+      const deletedRows = await Mentee.delete(req.params.id);
+      if (deletedRows === 0) {
+        return res.status(404).json({ error: 'Mentee not found' });
+      }
+      res.json({ message: 'Mentee deleted' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 };

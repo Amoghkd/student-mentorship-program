@@ -1,7 +1,17 @@
-require('dotenv').config();
 const app = require('./app');
+const pool = require('./config/db');
+const PORT = process.env.PORT || 4000;
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+(async () => {
+  try {
+    // Check the database connection
+    await pool.getConnection();
+    console.log('Database connected...');
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+})();

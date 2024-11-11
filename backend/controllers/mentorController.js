@@ -1,46 +1,57 @@
 const Mentor = require('../models/Mentor');
 
-exports.createMentor = async (req, res) => {
-    const { name, contact_info, expertise, availability, languages, bio } = req.body;
-
-    // Check for required fields
-    if (!name || !contact_info || !expertise) {
-        return res.status(400).json({
-            error: 'Missing required fields: name, contact_info, and expertise are required.'
-        });
-    }
-
+module.exports = {
+  async getAll(req, res) {
     try {
-        // Create mentor with provided data
-        const mentorId = await Mentor.create({
-            name,
-            contact_info: JSON.stringify(contact_info),
-            expertise: JSON.stringify(expertise),
-            availability,
-            languages,
-            bio
-        });
-        
-        res.status(201).json({ 
-            message: 'Mentor created successfully', 
-            mentorId 
-        });
+      const mentors = await Mentor.getAll();
+      res.json(mentors);
     } catch (error) {
-        console.error('Error creating mentor:', error);
-        res.status(500).json({ 
-            error: 'Failed to create mentor. Please try again.' 
-        });
+      res.status(500).json({ error: error.message });
     }
-};
+  },
 
-exports.getAllMentors = async (req, res) => {
+  async create(req, res) {
     try {
-        const mentors = await Mentor.findAll();
-        res.status(200).json(mentors);
+      const mentorId = await Mentor.create(req.body);
+      res.json({ mentor_id: mentorId });
     } catch (error) {
-        console.error('Error retrieving mentors:', error);
-        res.status(500).json({ 
-            error: 'Failed to retrieve mentors. Please try again.' 
-        });
+      res.status(500).json({ error: error.message });
     }
+  },
+
+  async findById(req, res) {
+    try {
+      const mentor = await Mentor.findById(req.params.id);
+      if (!mentor) {
+        return res.status(404).json({ error: 'Mentor not found' });
+      }
+      res.json(mentor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async update(req, res) {
+    try {
+      const updatedRows = await Mentor.update(req.params.id, req.body);
+      if (updatedRows === 0) {
+        return res.status(404).json({ error: 'Mentor not found' });
+      }
+      res.json({ message: 'Mentor updated' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  async delete(req, res) {
+    try {
+      const deletedRows = await Mentor.delete(req.params.id);
+      if (deletedRows === 0) {
+        return res.status(404).json({ error: 'Mentor not found' });
+      }
+      res.json({ message: 'Mentor deleted' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 };
