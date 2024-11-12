@@ -31,7 +31,6 @@ const MentorForm: React.FC = () => {
         bio: '',
         password: '', // Initial value for password
     });
-    const [maskedPassword, setMaskedPassword] = useState(''); // State to hold masked password
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -50,13 +49,6 @@ const MentorForm: React.FC = () => {
                 ...formData,
                 expertise: value.split(',').map(skill => skill.trim()),
             });
-        } else if (name === 'password') {
-            // Update both the actual password and masked password
-            setFormData({
-                ...formData,
-                password: value,
-            });
-            setMaskedPassword('*'.repeat(value.length)); // Replace characters with asterisks
         } else {
             setFormData({
                 ...formData,
@@ -89,7 +81,6 @@ const MentorForm: React.FC = () => {
                 bio: '',
                 password: '', // Reset password field after submission
             });
-            setMaskedPassword(''); // Reset masked password
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {
@@ -145,10 +136,10 @@ const MentorForm: React.FC = () => {
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password:</label>
                         <input
-                            type="text"
+                            type="password" // Changed to 'password' for better security
                             id="password"
                             name="password"
-                            value={maskedPassword} // Show masked password (asterisks)
+                            value={formData.password}
                             onChange={handleChange}
                             required
                             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"

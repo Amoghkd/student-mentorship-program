@@ -1,40 +1,44 @@
+"use client";
 import Link from "next/link";
-import Sidebar from "../components/Sidebar";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [isNewUser, setIsNewUser] = useState(false);
+
+  useEffect(() => {
+    // Logic to determine if the user just signed up
+    const newUser = localStorage.getItem('newUser'); // Example of tracking the state
+    if (newUser) {
+      setIsNewUser(true);
+      localStorage.removeItem('newUser'); // Clear after detection
+    }
+  }, []);
+
   return (
     <>
-      {/* Full-Width Image Section */}
-      <div className="relative w-full h-1/4 min-h-[625px]">
+      <div className="relative w-full h-[625px]">
         <img
           src="/s3.png"
-          alt="STMH logo"
+          alt="Student Mentorship Program"
           className="object-cover w-full h-full"
         />
 
-        {/* Logo-like Stacked Text */}
-        <div className="absolute top-[20%] left-[69%] transform -translate-x-1/2 flex flex-col items-center text-black font-extrabold">
-          {/* <p className="text-5xl md:text-6xl lg:text-7xl leading-none">Student</p>
-          <p className="text-5xl md:text-6xl lg:text-7xl leading-none">Mentoring</p> */}
-        </div>
-
-        {/* Buttons in the adjusted position */}
-        <div className="absolute top-[60%] left-[68%] transform -translate-x-1/2 flex gap-2">
-          <Link href="/reg_mentor" passHref>
-            <button className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-600 transition">
-              Register as Mentor
-            </button>
-          </Link>
-          <Link href="/stu_reg" passHref>
-            <button className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-600 transition">
-              Register as Student
-            </button>
-
-          </Link>
-        </div>
+        {/* Prompt for new users */}
+        {isNewUser && (
+          <div className="absolute top-[60%] left-[68%] transform -translate-x-1/2 flex gap-2">
+            <Link href="/reg_mentor" passHref>
+              <button className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-600 transition">
+                Complete Mentor Registration
+              </button>
+            </Link>
+            <Link href="/stu_reg" passHref>
+              <button className="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-600 transition">
+                Complete Student Registration
+              </button>
+            </Link>
+          </div>
+        )}
       </div>
-
-
     </>
   );
 }

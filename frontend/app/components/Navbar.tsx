@@ -17,6 +17,10 @@ const Navbar = () => {
                     <Link href="/login"> {/* Login button */}
                         <button className="bg-gray-300 text-black px-4 py-2 rounded">Login</button>
                     </Link>
+                    <Link href="/signup"> {/* Updated to lowercase */}
+                        <button className="bg-gray-300 text-black px-4 py-2 rounded">Sign Up</button>
+                    </Link>
+                      
 
                     {/* Search Bar */}
                     <input

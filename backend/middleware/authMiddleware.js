@@ -1,13 +1,15 @@
-const jwt = require('jsonwebtoken');
+// authMiddleware.js
+
+const jwt = require('jsonwebtoken'); 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 function verifyToken(req, res, next) {
-  const token = req.headers['authorization'];
+  const token = req.cookies.authToken; // Read token from cookies
   if (!token) {
     return res.status(403).json({ error: 'No token provided' });
   }
 
-  jwt.verify(token.split(' ')[1], JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: 'Failed to authenticate token' });
     }

@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const mentorRoutes = require('./routes/mentorRoutes');
 const menteeRoutes = require('./routes/menteeRoutes');
@@ -8,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');  // Import the authentication
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser()); // Add this line to parse cookies
 
 app.use(cors({
     origin: 'http://localhost:3000',  // Replace with your frontend URL

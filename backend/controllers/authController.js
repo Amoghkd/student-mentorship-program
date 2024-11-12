@@ -1,4 +1,6 @@
-const jwt = require('jsonwebtoken');
+// authController.js
+
+const jwt = require('jsonwebtoken'); 
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 
@@ -15,7 +17,6 @@ module.exports = {
         [username]
       );
 
-      // If user is not found in the `users` table
       if (!userResult.length) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
@@ -51,29 +52,36 @@ module.exports = {
 
       const [profileResult] = await pool.query(profileQuery, profileParams);
 
-      // If profile not found in `mentors` or `mentees` table
       if (!profileResult.length) {
         return res.status(401).json({ error: `Profile not found for role ${user.role}` });
       }
 
-      // Step 4: Generate JWT token with user role and ID
+      // Step 4: Generate JWT token
       const token = jwt.sign({ userId: user.user_id, role: user.role }, JWT_SECRET, {
         expiresIn: '1h',
       });
 
-      res.json({ token, role: user.role });
+      // Step 5: Set token as HTTP-only cookie with SameSite set to 'Lax'
+      res.cookie('authToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true in production
+        sameSite: 'Lax', // Changed from 'Strict' to 'Lax'
+        maxAge: 60 * 60 * 1000 // 1 hour
+      });
+
+      res.json({ message: 'Login successful', role: user.role });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   },
 
   async register(req, res) {
-    const { username, password, role, ...profileData } = req.body;
+    const { username, password, role } = req.body;
 
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert into `users` table
+      // Insert into `users` table only
       const [userResult] = await pool.query(
         'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
         [username, hashedPassword, role]
@@ -81,24 +89,32 @@ module.exports = {
 
       const userId = userResult.insertId;
 
-      // Insert into `mentors` or `mentees` table based on role
-      if (role === 'mentor') {
-        await pool.query(
-          'INSERT INTO mentors (user_id, name, contact_info, expertise, availability, languages, bio) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [userId, profileData.name, JSON.stringify(profileData.contact_info), JSON.stringify(profileData.expertise), profileData.availability, profileData.languages, profileData.bio]
-        );
-      } else if (role === 'mentee') {
-        await pool.query(
-          'INSERT INTO mentees (user_id, name, contact_info, interests, needs_goals, preferred_communication, location) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [userId, profileData.name, JSON.stringify(profileData.contact_info), JSON.stringify(profileData.interests), profileData.needs_goals, profileData.preferred_communication, profileData.location]
-        );
-      } else {
-        return res.status(400).json({ error: 'Invalid role specified' });
-      }
+      // Generate a JWT token upon successful registration
+      const token = jwt.sign({ userId: userId, role: role }, JWT_SECRET, {
+        expiresIn: '1h',
+      });
+
+      // Set the token as an HTTP-only cookie with SameSite set to 'Lax'
+      res.cookie('authToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true in production
+        sameSite: 'Lax', // Changed from 'Strict' to 'Lax'
+        maxAge: 60 * 60 * 1000 // 1 hour
+      });
 
       res.status(201).json({ message: 'User registered', userId });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   },
+
+  // Optional logout function to clear the cookie
+  async logout(req, res) {
+    res.clearCookie('authToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    });
+    res.json({ message: 'Logged out successfully' });
+  }
 };
