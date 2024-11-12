@@ -15,6 +15,7 @@ interface MentorFormData {
     availability: string;
     languages: string;
     bio: string;
+    password: string; // Added password field
 }
 
 const MentorForm: React.FC = () => {
@@ -28,13 +29,14 @@ const MentorForm: React.FC = () => {
         availability: '',
         languages: '',
         bio: '',
+        password: '', // Initial value for password
     });
+    const [maskedPassword, setMaskedPassword] = useState(''); // State to hold masked password
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        
-        // Nested fields handling for contact_info
+
         if (name === 'email' || name === 'phone') {
             setFormData({
                 ...formData,
@@ -46,8 +48,15 @@ const MentorForm: React.FC = () => {
         } else if (name === 'expertise') {
             setFormData({
                 ...formData,
-                expertise: value.split(',').map(skill => skill.trim()), // Convert comma-separated string to array
+                expertise: value.split(',').map(skill => skill.trim()),
             });
+        } else if (name === 'password') {
+            // Update both the actual password and masked password
+            setFormData({
+                ...formData,
+                password: value,
+            });
+            setMaskedPassword('*'.repeat(value.length)); // Replace characters with asterisks
         } else {
             setFormData({
                 ...formData,
@@ -78,7 +87,9 @@ const MentorForm: React.FC = () => {
                 availability: '',
                 languages: '',
                 bio: '',
+                password: '', // Reset password field after submission
             });
+            setMaskedPassword(''); // Reset masked password
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {
@@ -124,6 +135,20 @@ const MentorForm: React.FC = () => {
                             id="name"
                             name="name"
                             value={formData.name}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    {/* Password Field */}
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password:</label>
+                        <input
+                            type="text"
+                            id="password"
+                            name="password"
+                            value={maskedPassword} // Show masked password (asterisks)
                             onChange={handleChange}
                             required
                             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"

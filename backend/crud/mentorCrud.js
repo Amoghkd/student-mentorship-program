@@ -7,11 +7,11 @@ const MentorCrud = {
   },
 
   async create(data) {
-    const { name, contact_info, expertise, availability, languages, bio } = data;
+    const { name, password, contact_info, expertise, availability, languages, bio } = data;
     const [result] = await pool.query(
-      `INSERT INTO mentors (name, contact_info, expertise, availability, languages, bio)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, JSON.stringify(contact_info), JSON.stringify(expertise), availability, languages, bio]
+      `INSERT INTO mentors (name, password, contact_info, expertise, availability, languages, bio)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [name, password, JSON.stringify(contact_info), JSON.stringify(expertise), availability, languages, bio]
     );
     return result.insertId;
   },
@@ -22,11 +22,11 @@ const MentorCrud = {
   },
 
   async update(id, data) {
-    const { name, contact_info, expertise, availability, languages, bio } = data;
+    const { name, password, contact_info, expertise, availability, languages, bio } = data;
     const [result] = await pool.query(
-      `UPDATE mentors SET name = ?, contact_info = ?, expertise = ?, availability = ?, languages = ?, bio = ?
+      `UPDATE mentors SET name = ?, password = ?, contact_info = ?, expertise = ?, availability = ?, languages = ?, bio = ?
        WHERE mentor_id = ?`,
-      [name, JSON.stringify(contact_info), JSON.stringify(expertise), availability, languages, bio, id]
+      [name, password, JSON.stringify(contact_info), JSON.stringify(expertise), availability, languages, bio, id]
     );
     return result.affectedRows;
   },

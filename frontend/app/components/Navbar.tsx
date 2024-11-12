@@ -14,18 +14,16 @@ const Navbar = () => {
                 </Link>
 
                 <div className="flex items-center gap-5">
+                    <Link href="/login"> {/* Login button */}
+                        <button className="bg-gray-300 text-black px-4 py-2 rounded">Login</button>
+                    </Link>
+
                     {/* Search Bar */}
                     <input
                         type="text"
                         placeholder="Search..."
                         className="px-3 py-2 border text-black border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
-                    <Link href="/signup"> {/* Updated to lowercase */}
-                        <button className="bg-gray-300 text-black px-4 py-2 rounded">Sign Up</button>
-                    </Link>
-                    <Link href="/login"> {/* Updated to lowercase */}
-                        <button className="bg-gray-300 text-black px-4 py-2 rounded">Login</button>
-                    </Link>
                 </div>
             </nav>
         </header>

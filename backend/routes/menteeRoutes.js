@@ -1,17 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const menteeController = require('../controllers/menteeController');
+const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
 
-// Route to get all mentees
-router.get('/', menteeController.getAll);
-// Route to create a new mentee
-router.post('/', menteeController.create);
-// Route to get a specific mentee by ID
-router.get('/:id', menteeController.findById);
-// Route to update a specific mentee by ID
-router.put('/:id', menteeController.update);
-// Route to delete a specific mentee by ID
-router.delete('/:id', menteeController.delete);
+router.get('/', verifyToken, authorizeRoles('admin'), menteeController.getAll);
+router.post('/', verifyToken, authorizeRoles('admin', 'mentor'), menteeController.create);
+router.get('/:id', verifyToken, authorizeRoles('admin', 'mentee'), menteeController.findById);
+router.put('/:id', verifyToken, authorizeRoles('admin', 'mentee'), menteeController.update);
+router.delete('/:id', verifyToken, authorizeRoles('admin'), menteeController.delete);
 
 module.exports = router;
-return router 
