@@ -1,30 +1,38 @@
 const pool = require('../config/db');
 
 const MatchCrud = {
-  async getMenteeById(menteeId) {
-    const [menteeRows] = await pool.query('SELECT * FROM mentees WHERE mentee_id = ?', [menteeId]);
-    return menteeRows[0];
+  async getAll() {
+    const [rows] = await pool.query('SELECT * FROM mentor_mentee_matches');
+    return rows;
   },
 
-  async getAllMentors() {
-    const [mentorRows] = await pool.query('SELECT * FROM mentors');
-    return mentorRows;
-  },
-
-  /**
-   * Save a selected match to the database.
-   * @param {Number} menteeId - The ID of the mentee.
-   * @param {Number} mentorId - The ID of the mentor.
-   * @param {Number} score - The match score.
-   * @returns {Object} - Result of the database operation.
-   */
-  async saveMatch(menteeId, mentorId, score) {
+  async create(data) {
+    const { mentee_id, mentor_id, score, outcome_feedback } = data;
     const [result] = await pool.query(
-      `INSERT INTO mentor_mentee_matches (mentee_id, mentor_id, score, match_date)
-       VALUES (?, ?, ?, CURRENT_DATE)`,
-      [menteeId, mentorId, score]
+      `INSERT INTO mentor_mentee_matches (mentee_id, mentor_id, score, match_date, outcome_feedback)
+       VALUES (?, ?, ?, CURRENT_DATE, ?)`,
+      [mentee_id, mentor_id, score, outcome_feedback]
     );
-    return result;
+    return result.insertId;
+  },
+
+  async findById(id) {
+    const [rows] = await pool.query('SELECT * FROM mentor_mentee_matches WHERE match_id = ?', [id]);
+    return rows[0];
+  },
+
+  async update(id, data) {
+    const { score, outcome_feedback } = data;
+    const [result] = await pool.query(
+      `UPDATE mentor_mentee_matches SET score = ?, outcome_feedback = ?, match_date = CURRENT_DATE WHERE match_id = ?`,
+      [score, outcome_feedback, id]
+    );
+    return result.affectedRows;
+  },
+
+  async delete(id) {
+    const [result] = await pool.query('DELETE FROM mentor_mentee_matches WHERE match_id = ?', [id]);
+    return result.affectedRows;
   }
 };
 

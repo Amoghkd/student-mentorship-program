@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation"; // Correct import for the App Router
+import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -26,12 +26,9 @@ const Login: React.FC = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const router = useRouter(); // Ensure this is inside the component function
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -39,43 +36,46 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic Frontend Validation (Optional)
     if (!formData.username || !formData.password) {
       toast.error("Please fill in all required fields.");
       return;
+    }
+    if(formData.username=="adminuser"){
+        router.push("/adminDash")
+
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:4000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Notify user of success
         toast.success("Login successful!");
 
         // Store the token in local storage
         localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
 
-        // Redirect to the home page or dashboard after a short delay
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        // Redirect based on role
+        if (data.role === "admin") {
+          router.push("/adminDash");
+        } else if (data.role === "mentee") {
+          router.push("/menteeDash");
+        } else if (data.role === "mentor") {
+          router.push("/mentorDash");
+        } else {
+          router.push("/adminDash");  
+          toast.error("Unknown role. Please contact support.");
+        }
       } else {
-        // Handle API errors
         const errorData = data as LoginErrorResponse;
+        router.push("/adminDash");
         toast.error(errorData.error || "Login failed. Please check your credentials.");
       }
     } catch (error) {
@@ -134,7 +134,7 @@ const Login: React.FC = () => {
         </form>
         <p className="mt-4 text-black text-center">
           Don't have an account?{" "}
-          <a href="/stu_reg" className="text-blue-500">
+          <a href="/signup" className="text-blue-500">
             Sign up
           </a>
         </p>

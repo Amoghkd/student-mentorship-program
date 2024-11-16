@@ -7,11 +7,11 @@ const MenteeCrud = {
   },
 
   async create(data) {
-    const { name, password, contact_info, interests, needs_goals, preferred_communication, location } = data;
+    const { user_id, name, contact_info, interests, needs_goals, preferred_communication, location } = data;
     const [result] = await pool.query(
-      `INSERT INTO mentees (name, password, contact_info, interests, needs_goals, preferred_communication, location)
+      `INSERT INTO mentees (user_id, name, contact_info, interests, needs_goals, preferred_communication, location)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, password, JSON.stringify(contact_info), JSON.stringify(interests), needs_goals, preferred_communication, location]
+      [user_id, name, JSON.stringify(contact_info), JSON.stringify(interests), needs_goals, preferred_communication, location]
     );
     return result.insertId;
   },
@@ -22,11 +22,11 @@ const MenteeCrud = {
   },
 
   async update(id, data) {
-    const { name, password, contact_info, interests, needs_goals, preferred_communication, location } = data;
+    const { name, contact_info, interests, needs_goals, preferred_communication, location } = data;
     const [result] = await pool.query(
-      `UPDATE mentees SET name = ?, password = ?, contact_info = ?, interests = ?, needs_goals = ?, preferred_communication = ?, location = ?
+      `UPDATE mentees SET name = ?, contact_info = ?, interests = ?, needs_goals = ?, preferred_communication = ?, location = ?
        WHERE mentee_id = ?`,
-      [name, password, JSON.stringify(contact_info), JSON.stringify(interests), needs_goals, preferred_communication, location, id]
+      [name, JSON.stringify(contact_info), JSON.stringify(interests), needs_goals, preferred_communication, location, id]
     );
     return result.affectedRows;
   },

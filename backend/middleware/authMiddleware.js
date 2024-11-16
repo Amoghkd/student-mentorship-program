@@ -5,6 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 function verifyToken(req, res, next) {
   const token = req.cookies.authToken; // Read token from cookies
+  console.log("token received",token)
   if (!token) {
     return res.status(403).json({ error: 'No token provided' });
   }

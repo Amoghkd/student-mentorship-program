@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -11,11 +12,12 @@ interface MentorFormData {
         email: string;
         phone: string;
     };
-    expertise: string[];
+    field: string;
+    subfield: string;
     availability: string;
     languages: string;
     bio: string;
-    password: string; // Added password field
+    password: string;
 }
 
 const MentorForm: React.FC = () => {
@@ -25,13 +27,18 @@ const MentorForm: React.FC = () => {
             email: '',
             phone: '',
         },
-        expertise: [],
+        field: '',
+        subfield: '',
         availability: '',
         languages: '',
         bio: '',
-        password: '', // Initial value for password
+        password: '',
     });
     const [isLoading, setIsLoading] = useState(false);
+
+    // Retrieve userId from URL query parameters
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("userId");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -43,11 +50,6 @@ const MentorForm: React.FC = () => {
                     ...formData.contact_info,
                     [name]: value,
                 },
-            });
-        } else if (name === 'expertise') {
-            setFormData({
-                ...formData,
-                expertise: value.split(',').map(skill => skill.trim()),
             });
         } else {
             setFormData({
@@ -61,13 +63,30 @@ const MentorForm: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
 
+        // Construct the payload based on the provided format and include userId
+        const payload = {
+            user_id: Number(userId), // Include userId in the payload
+            name: formData.name,
+            contact_info: {
+                email: formData.contact_info.email,
+                phone: formData.contact_info.phone,
+            },
+            expertise: {
+                field: formData.field,
+                subfield: formData.subfield,
+            },
+            availability: formData.availability,
+            languages: formData.languages,
+            bio: formData.bio,
+        };
+
         try {
-            const response = await axios.post('http://localhost:4000/api/mentors', formData, {
+            const response = await axios.post('http://localhost:4000/api/mentors', payload, {
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true,
             });
-            console.log('Response:', response.data);
             toast.success('Mentor Registered Successfully');
             setFormData({
                 name: '',
@@ -75,28 +94,16 @@ const MentorForm: React.FC = () => {
                     email: '',
                     phone: '',
                 },
-                expertise: [],
+                field: '',
+                subfield: '',
                 availability: '',
                 languages: '',
                 bio: '',
-                password: '', // Reset password field after submission
+                password: '',
             });
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    console.error('Server Error:', error.response.data);
-                    toast.error(`Error: ${error.response.data.message || 'Server error'}`);
-                } else if (error.request) {
-                    console.error('Network Error - No response received');
-                    toast.error('Cannot connect to server. Please check if the server is running.');
-                } else {
-                    console.error('Error:', error.message);
-                    toast.error(error.message);
-                }
-            } else {
-                console.error('Unexpected error:', error);
-                toast.error('An unexpected error occurred');
-            }
+            console.error('Error:', error);
+            toast.error('An error occurred while submitting the form.');
         } finally {
             setIsLoading(false);
         }
@@ -132,20 +139,6 @@ const MentorForm: React.FC = () => {
                         />
                     </div>
 
-                    {/* Password Field */}
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password:</label>
-                        <input
-                            type="password" // Changed to 'password' for better security
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                        />
-                    </div>
-
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email:</label>
                         <input
@@ -173,12 +166,25 @@ const MentorForm: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="expertise" className="block text-sm font-medium text-gray-700">Expertise (comma-separated):</label>
+                        <label htmlFor="field" className="block text-sm font-medium text-gray-700">Field of Expertise:</label>
                         <input
                             type="text"
-                            id="expertise"
-                            name="expertise"
-                            value={formData.expertise.join(', ')}
+                            id="field"
+                            name="field"
+                            value={formData.field}
+                            onChange={handleChange}
+                            required
+                            className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="subfield" className="block text-sm font-medium text-gray-700">Subfield of Expertise:</label>
+                        <input
+                            type="text"
+                            id="subfield"
+                            name="subfield"
+                            value={formData.subfield}
                             onChange={handleChange}
                             required
                             className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"

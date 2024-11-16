@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 interface RegisterRequest {
   username: string;
   password: string;
-  role: "mentor" | "mentee";
+  role: "mentor" | "mentee"|"";
 }
 
 interface RegisterSuccessResponse {
@@ -67,12 +67,12 @@ const Signup: React.FC = () => {
         // Notify user of success and redirect
         toast.success(data.message);
         // Optionally, you can redirect after a short delay to allow the toast to be visible
-        if(formData.role=="mentee"){
-          router.push("/stu_reg");
-        }
-        else if (formData.role=="mentor") {
-            router.push("/reg")
-        }
+        
+      if (formData.role === "mentee") {
+              router.push(`/stu_reg?userId=${data.userId}`);
+            } else if (formData.role === "mentor") {
+              router.push(`/reg_mentor?userId=${data.userId}`);
+            }
         // Reset form fields
         setFormData({
           username: "",
